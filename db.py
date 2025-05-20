@@ -2,6 +2,7 @@ import sqlite3
 
 class DB():
     def __init__(self):
+        print("Database started")
 
         self.id_usuario = None
 
@@ -50,8 +51,6 @@ class DB():
         """)
 
         self.conn.commit()
-
-        self.conn.close()
 
 
 # funções CRUD

@@ -11,18 +11,14 @@ def login():
     username = username_entry.get()
     password = password_entry.get()
 
-    db.cursor.execute("""SELECT nome, senha FROM Usuarios WHERE nome = ?""", (username, ))
-    db.conn.commit()
-
-    user_fetched_data = db.cursor.fetchone()
-
-    if user_fetched_data: # checks if the user is in the database
-        if user_fetched_data[1] == password: # change both if-clauses to try-except later
-            messagebox.showinfo("Login Success", f"Welcome, {username}!")
-        else:
-            messagebox.showerror("Login Failed", "Invalid username or password.")
-    else:
+    try:
+        db.login_user(username, password)
+        messagebox.showinfo("Login Success", f"Welcome, {username}!")
+    except:
         messagebox.showerror("Login Failed", "Invalid username or password.")
+
+
+        
 
         
 def valid_password(password) -> bool:
@@ -41,7 +37,11 @@ def sign_up():
     elif not valid_password(password):
         messagebox.showerror("Weak Password", "Password must contain at least one uppercase letter and one special character.")
     else:
-        messagebox.showinfo("Registration Successful", f"Account created for {username}!")
+        try:
+            db.sign_user(username, password)
+            messagebox.showinfo("Registration Successful", f"Account created for {username}!")
+        except:
+            messagebox.showerror("User error", "Username already exists")
 
 
 # Create main window

@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import *
 
 class DB():
     def __init__(self):
@@ -24,7 +25,7 @@ class DB():
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS logs (
                 id_log INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_nota INTEGER NOT NULL,
+                id_nota INTEGER,
                 id_usuario INTEGER NOT NULL,
                 acao TEXT NOT NULL,
                 data TEXT NOT NULL,
@@ -44,7 +45,6 @@ class DB():
                 id_nota INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_usuario INTEGER NOT NULL,
                 conteudo TEXT,
-                    
                     FOREIGN KEY (id_usuario)
                         REFERENCES Usuario(id_usuario)
                     );
@@ -100,3 +100,60 @@ class DB():
         conteudo = "".join(self.cursor.fetchall())
         return conteudo
         
+
+    def sign_user(self, username: str, password: str):
+
+        """Cadastra novo usuário na base de dados e retorna uma exceção se o usuário existir na base de dados"""
+
+        try:
+            self.cursor.execute("""INSERT INTO Usuarios (nome, senha) VALUES (?, ?)""", (username, password))
+            self.conn.commit()
+
+            self.cursor.execute("""SELECT id_usuario FROM Usuarios WHERE nome = ?""", username)
+            self.conn.commit()
+            self.id_usuario = self.cursor.fetchone()[0]
+
+        except sqlite3.IntegrityError:
+            raise sqlite3.IntegrityError("Já existe um usuário com esse nome. ")
+        
+
+    def login_user(self, username: str, password: str) -> Exception | None:
+
+        """
+        Valida o login do usuário e retorna uma exceção se o usuário não estiver cadastrado na base. \n\n
+        username: nome de usuário\n
+        password: senha do usuário
+        """
+
+        self.cursor.execute("""SELECT nome, senha FROM Usuarios WHERE nome = ?""", (username, ))
+        self.conn.commit()
+
+        userdata = self.cursor.fetchone()
+        if userdata: 
+            if userdata[1] == password:
+                self.id_usuario = username
+            else:
+                raise Exception("Usuário não cadastrado na base de dados!")
+        else:
+            raise Exception("Usuário não cadastrado na base de dados!")                    
+        
+
+    def insert_log(self, acao: str, id_nota: int | None = None) -> None:
+        """
+        Insere um log na base de dados. \n\n
+        acao: descrição do log\n
+        id_nota (opcional): ID da nota que faz parte da interação
+
+        """
+
+
+        dt = datetime.now() # pega a data do momento do log e formata-a
+        date = dt.strftime("%Y-%m-%d")
+        timestamp = dt.strftime("%H:%M:%S")
+
+        if id_nota:
+            self.cursor.execute("""INSERT INTO Logs (id_usuario, acao, data, hora, id_nota) VALUES (?, ?, ?, ?, ?)""", (self.id_usuario, acao, date, timestamp, id_nota, ))
+        else:
+            self.cursor.execute("""INSERT INTO Logs (id_usuario, acao, data, hora) VALUES (?, ?, ?, ?)""", (self.id_usuario, acao, date, timestamp, ))
+        
+        self.conn.commit()

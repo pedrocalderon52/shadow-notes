@@ -116,6 +116,7 @@ class DB():
         except sqlite3.IntegrityError:
             raise sqlite3.IntegrityError("Já existe um usuário com esse nome. ")
         
+        self.insert_log("cadastro de usuário")
 
     def login_user(self, username: str, password: str) -> Exception | None:
 
@@ -135,7 +136,9 @@ class DB():
             else:
                 raise Exception("Usuário não cadastrado na base de dados!")
         else:
-            raise Exception("Usuário não cadastrado na base de dados!")                    
+            raise Exception("Usuário não cadastrado na base de dados!")   
+
+        self.insert_log("login")                 
         
 
     def insert_log(self, acao: str, id_nota: int | None = None) -> None:

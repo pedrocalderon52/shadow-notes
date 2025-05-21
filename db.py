@@ -14,7 +14,7 @@ class DB():
 
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS Usuarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id_usuario INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL UNIQUE,
             senha TEXT NOT NULL CHECK (LENGTH(senha) > 6)
             );
@@ -75,7 +75,7 @@ class DB():
         txt: Conteúdo que irá ser colocado no valor da nota
         """
 
-        self.cursor.execute("""UPDATE Notas SET conteudo = ? WHERE id_nota = ?""", txt, id_nota)
+        self.cursor.execute("""UPDATE Notas SET conteudo = ? WHERE id_nota = ?""", (txt, id_nota, ))
         self.conn.commit()
 
     def delete_note(self, id_nota: int) -> None:
@@ -85,7 +85,7 @@ class DB():
         id_nota: ID da nota que deseja excluir
         """
         
-        self.cursor.execute("""DELETE FROM Notas WHERE id_nota = ? """, id_nota)
+        self.cursor.execute("""DELETE FROM Notas WHERE id_nota = ? """, (id_nota, ))
         self.conn.commit()
 
     
@@ -96,7 +96,7 @@ class DB():
         id_nota: ID da nota que deseja ler
         """
 
-        self.cursor.execute("SELECT conteudo FROM Notas WHERE id_nota = ?", id_nota)
+        self.cursor.execute("SELECT conteudo FROM Notas WHERE id_nota = ?", (id_nota, ))
         conteudo = "".join(self.cursor.fetchall())
         return conteudo
         
@@ -109,7 +109,7 @@ class DB():
             self.cursor.execute("""INSERT INTO Usuarios (nome, senha) VALUES (?, ?)""", (username, password))
             self.conn.commit()
 
-            self.cursor.execute("""SELECT id_usuario FROM Usuarios WHERE nome = ?""", username)
+            self.cursor.execute("""SELECT id_usuario FROM Usuarios WHERE nome = ?""", (username, )) # ta dando problema aqui
             self.conn.commit()
             self.id_usuario = self.cursor.fetchone()[0]
 

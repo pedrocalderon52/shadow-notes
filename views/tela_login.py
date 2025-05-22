@@ -62,6 +62,7 @@ class TelaLogin(ttk.Frame):
             try:
                 self.db.sign_user(username, password)
                 messagebox.showinfo("Registration Successful", f"Account created for {username}!")
+                self.controller.show_screen("tela inicial")
             except:
                 messagebox.showerror("User error", "Username already exists")
 

@@ -9,6 +9,7 @@ class DB():
 
         self.conn = sqlite3.connect('notas.db')
         self.cursor = self.conn.cursor()
+        print(self.cursor)
 
         self.cursor.execute("PRAGMA foreign_keys = ON;") # ligando as FK's
 
@@ -23,7 +24,7 @@ class DB():
         self.conn.commit()
 
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS logs (
+            CREATE TABLE IF NOT EXISTS Logs (
                 id_log INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_nota INTEGER,
                 id_usuario INTEGER NOT NULL,
@@ -97,6 +98,7 @@ class DB():
         """
 
         self.cursor.execute("SELECT conteudo FROM Notas WHERE id_nota = ?", (id_nota, ))
+        self.conn.commit()
         conteudo = "".join(self.cursor.fetchall())
         return conteudo
         
@@ -109,7 +111,7 @@ class DB():
             self.cursor.execute("""INSERT INTO Usuarios (nome, senha) VALUES (?, ?)""", (username, password))
             self.conn.commit()
 
-            self.cursor.execute("""SELECT id_usuario FROM Usuarios WHERE nome = ?""", (username, )) # ta dando problema aqui
+            self.cursor.execute("""SELECT id_usuario FROM Usuarios WHERE nome = ?""", (username, ))  
             self.conn.commit()
             self.id_usuario = self.cursor.fetchone()[0]
 
@@ -126,13 +128,13 @@ class DB():
         password: senha do usuário
         """
 
-        self.cursor.execute("""SELECT nome, senha FROM Usuarios WHERE nome = ?""", (username, ))
+        self.cursor.execute("""SELECT nome, senha, id_usuario FROM Usuarios WHERE nome = ?""", (username, ))
         self.conn.commit()
 
         userdata = self.cursor.fetchone()
         if userdata: 
             if userdata[1] == password:
-                self.id_usuario = username
+                self.id_usuario = userdata[2]
             else:
                 raise Exception("Usuário não cadastrado na base de dados!")
         else:
@@ -153,10 +155,14 @@ class DB():
         dt = datetime.now() # pega a data do momento do log e formata-a
         date = dt.strftime("%Y-%m-%d")
         timestamp = dt.strftime("%H:%M:%S")
+        print(self.id_usuario, acao, date, timestamp, )
 
         if id_nota:
-            self.cursor.execute("""INSERT INTO Logs (id_usuario, acao, data, hora, id_nota) VALUES (?, ?, ?, ?, ?)""", (self.id_usuario, acao, date, timestamp, id_nota, ))
+            self.cursor.execute("""INSERT INTO Logs (id_usuario, acao, data, hora, id_nota) VALUES (?, ?, ?, ?, ?);""", (self.id_usuario, acao, date, timestamp, id_nota, ))
         else:
-            self.cursor.execute("""INSERT INTO Logs (id_usuario, acao, data, hora) VALUES (?, ?, ?, ?)""", (self.id_usuario, acao, date, timestamp, ))
+            print("É naquela linha mesmo")
+            print(self.cursor)
+            self.cursor.execute("""INSERT INTO Logs (id_usuario, acao, data, hora) VALUES (?, ?, ?, ?);""", (self.id_usuario, acao, date, timestamp, )) # erro nessa linha 
+            print('inserido')
         
         self.conn.commit()

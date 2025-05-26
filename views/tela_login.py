@@ -8,8 +8,8 @@ import re # It helps to search for patterns in strings
 class TelaLogin(ttk.Frame):
     def __init__(self, master, controller, db):
         super().__init__(master)
-        self.db = db
         self.controller = controller
+        self.db = db
 
         # Username entry label
         ttk.Label(self, text="User:").pack(pady=10)
@@ -30,8 +30,6 @@ class TelaLogin(ttk.Frame):
     def login(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
-
-        print(self.controller)
 
         try:
             self.db.login_user(username, password)

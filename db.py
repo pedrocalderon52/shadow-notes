@@ -3,13 +3,10 @@ from datetime import *
 
 class DB():
     def __init__(self):
-        print("Database started")
-
         self.id_usuario = None
 
         self.conn = sqlite3.connect('notas.db')
         self.cursor = self.conn.cursor()
-        print(self.cursor)
 
         self.cursor.execute("PRAGMA foreign_keys = ON;") # ligando as FK's
 
@@ -155,14 +152,10 @@ class DB():
         dt = datetime.now() # pega a data do momento do log e formata-a
         date = dt.strftime("%Y-%m-%d")
         timestamp = dt.strftime("%H:%M:%S")
-        print(self.id_usuario, acao, date, timestamp, )
 
         if id_nota:
             self.cursor.execute("""INSERT INTO Logs (id_usuario, acao, data, hora, id_nota) VALUES (?, ?, ?, ?, ?);""", (self.id_usuario, acao, date, timestamp, id_nota, ))
         else:
-            print("É naquela linha mesmo")
-            print(self.cursor)
             self.cursor.execute("""INSERT INTO Logs (id_usuario, acao, data, hora) VALUES (?, ?, ?, ?);""", (self.id_usuario, acao, date, timestamp, )) # erro nessa linha 
-            print('inserido')
         
         self.conn.commit()

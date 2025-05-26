@@ -26,5 +26,4 @@ class App(tk.Tk):
 
     def show_screen(self, screen):
         frame = self.frames[screen]
-        print('a')
         frame.tkraise()

@@ -80,6 +80,7 @@ class TelaInicial(ttk.Frame):
         self.refresh_dark_mode()
 
     def save_note(self):
+        #Save the current note content to the database or display it. Put your saving logic here, Caldessábio.
         content = self.note_text.get("1.0", tk.END).strip()
         messagebox.showinfo("Saved", f"Note content:\n{content[:50]}...")
 
@@ -89,33 +90,58 @@ class TelaInicial(ttk.Frame):
 
         label = tk.Label(note_frame, text="New Note", bg="white", fg="black", font=("Segoe UI", 11), anchor="w")
         label.pack(side="left", fill="x", expand=True)
-        label.bind("<Button-1>", lambda _: print("Note clicked"))  # Placeholder for note click action
+        label.bind("<Button-1>", lambda _: print("Note clicked"))  # Caldês, here is the click event for the note title
 
-        menu_btn = tk.Button(note_frame, text="⋮", font=("Segoe UI", 10), bg="white", bd=0)
-        menu_btn.pack(side="right")
-
+        # Create hidden menu frame, so i can make it appear when the user clicks the menu button, genius, huh? Just like Angular does
         menu_frame = tk.Frame(note_frame, bg="white", relief="raised", bd=1)
 
         def edit_note():
+            #edit the note content logic here Caldêssábio
             print("Edit clicked")
-            menu_frame.place_forget()
+            menu_frame.pack_forget()
 
         def delete_note():
+            # The UI is already Ok. Now needs to be removed from the databaserón too. ᕦ(ò_óˇ)ᕤ
             note_frame.destroy()
             self.note_widgets.remove((note_frame, label, menu_btn, menu_frame))
 
-        edit_button = tk.Button(menu_frame, text="Edit", command=edit_note, anchor="w")
-        edit_button.pack(fill="x")
-        delete_button = tk.Button(menu_frame, text="Delete", bg="red", command=delete_note, anchor="w")
-        delete_button.pack(fill="x", padx=10)
+        edit_button = tk.Button(menu_frame, text="✏ Edit", command=edit_note, anchor="w")
+        edit_button.pack(fill="x", padx=5, pady=(5, 0))
+
+        delete_button = tk.Button(menu_frame, text="🗑 Delete", command=delete_note, anchor="w", bg="red", fg="white")
+        delete_button.pack(fill="x", padx=5, pady=(0, 5))
 
         def toggle_menu():
             if menu_frame.winfo_ismapped():
-                menu_frame.place_forget()
+                menu_frame.pack_forget()
             else:
-                menu_frame.place(x=130, y=0)
+                menu_frame.pack(side="bottom", anchor="e")
 
-        menu_btn.configure(command=toggle_menu)
+        menu_btn = tk.Button(note_frame, text="⋮", font=("Segoe UI", 10), bg="white", bd=0, command=toggle_menu)
+        menu_btn.pack(side="right")
 
         self.note_widgets.append((note_frame, label, menu_btn, menu_frame))
-        self.refresh_dark_mode()  # Update theme when new note is added
+        self.refresh_dark_mode()
+
+
+        """Sabierón, I know this is a lot of code, but I wanted to make it as complete as possible 
+        for you to understand how to implement the dark mode and the note management system. 
+        If you have any questions or need further explanations, feel free to ask!
+        
+        pack_forget() is used to hide the menu frame when the user clicks outside of it or on the menu button again.
+        winfo_ismapped() checks if the menu frame is currently visible or forgotten.
+        destroy() is from the balacobaco. Kills the child widget too!
+
+        'fill="x"' means the widget will expand horizontally to fill the width of its container, but not vertically.
+        Other options:
+            fill="y": expands vertically.
+            fill="both": expands both horizontally and vertically.
+            fill=None (default): does not expand.     
+
+        The note text area is a Text widget that allows multiline input, and you can save the content
+        to the database or display it as needed.
+        
+        The note widgets are stored in a list to manage them easily, allowing you to add, edit, and delete notes dynamically.
+        
+        Farewell, Ashenrón. May the flames of coding guide thee ヾ(⌐■_■)ノ♪
+        """

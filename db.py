@@ -59,11 +59,10 @@ class DB():
         Insere uma nova nota na base de dados. \n\n
         txt: Texto da nota
         """
-        print(self.id_usuario)
         self.cursor.execute(""" INSERT INTO Notas (id_usuario) VALUES (?) """, (self.id_usuario, ))
-        
         self.conn.commit()
-        
+        self.cursor.execute("SELECT id_nota FROM Notas WHERE id_usuario = ?", (self.id_usuario, ))
+        return self.cursor.fetchall()[-1]
     
     def update_note(self, id_nota: int, txt: str) -> None:
 
@@ -72,7 +71,8 @@ class DB():
         id_nota: ID da nota que deseja atualizar \n
         txt: Conteúdo que irá ser colocado no valor da nota
         """
-
+        if isinstance(id_nota, tuple):
+            id_nota = id_nota[0]
         self.cursor.execute("""UPDATE Notas SET conteudo = ? WHERE id_nota = ?""", (txt, id_nota))
         self.conn.commit()
 
@@ -82,28 +82,28 @@ class DB():
         Exclue a nota com o id informado.\n\n
         id_nota: ID da nota que deseja excluir
         """
-        
+        if isinstance(id_nota, tuple):
+            id_nota = id_nota[0]
+
         self.cursor.execute("""DELETE FROM Notas WHERE id_nota = ?""", (id_nota, ))
         self.conn.commit()
 
     
     def get_note_text(self, id_nota: int) -> str:
-
-        """
-        Retorna o conteúdo da nota com o id informado.\n\n
-        id_nota: ID da nota que deseja ler
-        """
-
+        if isinstance(id_nota, tuple):
+            id_nota = id_nota[0]
+        
         self.cursor.execute("SELECT conteudo FROM Notas WHERE id_nota = ?", (id_nota, ))
-        self.conn.commit()
         conteudo = self.cursor.fetchone()
-        return conteudo
+        return conteudo if conteudo else "" 
 
 
     def get_notes_by_user(self):
         self.cursor.execute("""SELECT id_nota FROM Notas WHERE id_usuario = ?""", (self.id_usuario, ))
-        self.conn.commit()
-        return self.cursor.fetchall()
+        notas = self.cursor.fetchall()
+        
+        notas = list(map(lambda n: n[0], notas))
+        return notas
         
 
     def sign_user(self, username: str, password: str):

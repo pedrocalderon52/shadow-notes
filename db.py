@@ -42,9 +42,9 @@ class DB():
             CREATE TABLE IF NOT EXISTS Notas (
                 id_nota INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_usuario INTEGER NOT NULL,
-                conteudo TEXT,
+                conteudo TEXT DEFAULT '',
                     FOREIGN KEY (id_usuario)
-                        REFERENCES Usuario(id_usuario)
+                        REFERENCES Usuarios(id_usuario)
                     );
         """)
 
@@ -53,14 +53,14 @@ class DB():
 
 # funções CRUD
 
-    def insert_note(self, txt: str) -> None:
+    def insert_note(self) -> None:
 
         """
         Insere uma nova nota na base de dados. \n\n
         txt: Texto da nota
         """
-
-        self.cursor.execute(""" INSERT INTO Notas (id_usuario, conteudo) VALUES (?, ?) """, (self.id_usuario, txt))
+        print(self.id_usuario)
+        self.cursor.execute(""" INSERT INTO Notas (id_usuario) VALUES (?) """, (self.id_usuario, ))
         
         self.conn.commit()
         
@@ -73,7 +73,7 @@ class DB():
         txt: Conteúdo que irá ser colocado no valor da nota
         """
 
-        self.cursor.execute("""UPDATE Notas SET conteudo = ? WHERE id_nota = ?""", (txt, id_nota, ))
+        self.cursor.execute("""UPDATE Notas SET conteudo = ? WHERE id_nota = ?""", (txt, id_nota))
         self.conn.commit()
 
     def delete_note(self, id_nota: int) -> None:
@@ -83,7 +83,7 @@ class DB():
         id_nota: ID da nota que deseja excluir
         """
         
-        self.cursor.execute("""DELETE FROM Notas WHERE id_nota = ? """, (id_nota, ))
+        self.cursor.execute("""DELETE FROM Notas WHERE id_nota = ?""", (id_nota, ))
         self.conn.commit()
 
     
@@ -96,8 +96,14 @@ class DB():
 
         self.cursor.execute("SELECT conteudo FROM Notas WHERE id_nota = ?", (id_nota, ))
         self.conn.commit()
-        conteudo = "".join(self.cursor.fetchall())
+        conteudo = self.cursor.fetchone()
         return conteudo
+
+
+    def get_notes_by_user(self):
+        self.cursor.execute("""SELECT id_nota FROM Notas WHERE id_usuario = ?""", (self.id_usuario, ))
+        self.conn.commit()
+        return self.cursor.fetchall()
         
 
     def sign_user(self, username: str, password: str):

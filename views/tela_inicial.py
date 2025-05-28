@@ -7,10 +7,17 @@ class TelaInicial(ttk.Frame):
         super().__init__(master)
         self.db = db
         self.controller = controller
+        self.id_nota_lista = None
+        self.id_nota_db = None
 
         # === Variables ===
         self.dark_mode_on = tk.BooleanVar(value=False)
+        self.notes = self.db.get_notes_by_user()
         self.note_widgets = []  # Store tuples: (note_frame, label, menu_btn, menu_frame)
+
+        for i in range(len(self.notes)):
+            self.note_widgets.append(i, (self.add_note(initialization=True)))
+        
 
         # === Layout ===
         self.columnconfigure(0, weight = 1, minsize = 150)
@@ -41,7 +48,8 @@ class TelaInicial(ttk.Frame):
         self.right_panel = tk.Frame(self, bg="white")
         self.right_panel.grid(row=0, column=1, sticky="nsew", padx=5)
 
-        self.note_text = tk.Text(self.right_panel, wrap="word", font=("Segoe UI", 11), bd=1, relief="solid")
+        
+        self.note_text = tk.Text(self.right_panel, wrap="word", font=("Segoe UI", 11), bd=1, relief="solid", )
         self.note_text.pack(padx=10, pady=10, fill="both", expand=True)
 
         self.save_button = tk.Button(self.right_panel, text="SAVE", font=("Segoe UI", 10, "bold"), fg="blue", bg="white", command=self.save_note)
@@ -80,36 +88,53 @@ class TelaInicial(ttk.Frame):
         self.refresh_dark_mode()
 
     def save_note(self):
-        #Save the current note content to the database or display it. Put your saving logic here, Caldessábio.
         content = self.note_text.get("1.0", tk.END).strip()
+        self.db.update_note(self.id_nota_db, content)
         messagebox.showinfo("Saved", f"Note content:\n{content[:50]}...")
 
-    def add_note(self):
+    def display_note(self, clicked_label):
+        self.get_note_id(clicked_label)
+        txt = self.db.get_note_text(self.id_nota_db) # ver se agora vai
+        self.note_text.delete("1.0", tk.END)
+        self.note_text.insert("1.0", txt)
+
+    
+    def get_note_id(self, clicked_label):
+        for i, note_widget in enumerate(self.note_widgets):
+            if note_widget[1] == clicked_label:
+               self.id_nota_lista = i
+               self.id_nota_db = self.notes[i][0]
+               return i 
+            
+    def update_notes(self):
+        self.notes = self.db.get_notes_by_user()
+
+    def add_note(self, initialization = False):
         note_frame = tk.Frame(self.left_panel, bg="white")
         note_frame.pack(fill="x", pady=2, padx=5)
 
+        if not initialization:
+            self.db.insert_note()
+            self.update_notes() 
+
+
         label = tk.Label(note_frame, text="New Note", bg="white", fg="black", font=("Segoe UI", 11), anchor="w")
         label.pack(side="left", fill="x", expand=True)
-        label.bind("<Button-1>", lambda _: print("Note clicked"))  # Caldês, here is the click event for the note title
+        label.bind("<Button-1>", lambda _, lbl=label: self.display_note(lbl))  # Caldês, here is the click event for the note title
 
         # Create hidden menu frame, so i can make it appear when the user clicks the menu button, genius, huh? Just like Angular does
         menu_frame = tk.Frame(note_frame, bg="white", relief="raised", bd=1)
 
         def edit_note():
-            #edit the note content logic here Caldêssábio
-            print("Edit clicked")
             menu_frame.pack_forget()
 
         def delete_note():
             # The UI is already Ok. Now needs to be removed from the databaserón too. ᕦ(ò_óˇ)ᕤ
+            self.db.delete_note(self.id_nota_db)
             note_frame.destroy()
             self.note_widgets.remove((note_frame, label, menu_btn, menu_frame))
-
-        edit_button = tk.Button(menu_frame, text="✏ Edit", command=edit_note, anchor="w")
-        edit_button.pack(fill="x", padx=5, pady=(5, 0))
-
-        delete_button = tk.Button(menu_frame, text="🗑 Delete", command=delete_note, anchor="w", bg="red", fg="white")
-        delete_button.pack(fill="x", padx=5, pady=(0, 5))
+            self.notes.remove(self.id_nota_db)
+            self.update_notes()
 
         def toggle_menu():
             if menu_frame.winfo_ismapped():
@@ -117,11 +142,22 @@ class TelaInicial(ttk.Frame):
             else:
                 menu_frame.pack(side="bottom", anchor="e")
 
+
+        edit_button = tk.Button(menu_frame, text="✏ Edit", command=edit_note, anchor="w")
+        edit_button.pack(fill="x", padx=5, pady=(5, 0))
+
+        delete_button = tk.Button(menu_frame, text="🗑 Delete", command=delete_note, anchor="w", bg="red", fg="white")
+        delete_button.pack(fill="x", padx=5, pady=(0, 5))
+
+
         menu_btn = tk.Button(note_frame, text="⋮", font=("Segoe UI", 10), bg="white", bd=0, command=toggle_menu)
         menu_btn.pack(side="right")
 
-        self.note_widgets.append((note_frame, label, menu_btn, menu_frame))
-        self.refresh_dark_mode()
+        if initialization:
+            return (note_frame, label, menu_btn, menu_frame)
+        else:
+            self.note_widgets.append((note_frame, label, menu_btn, menu_frame))
+            self.refresh_dark_mode()    
 
 
         """Sabierón, I know this is a lot of code, but I wanted to make it as complete as possible 

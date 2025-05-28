@@ -13,7 +13,7 @@ class App(tk.Tk):
         self.columnconfigure(0, weight=1)
 
         self.title("Shadow Notes")
-        self.geometry("400x300")
+        self.geometry("800x600")
         self.frames = {}
 
         for nome, Frame in {"tela login": TelaLogin, "tela inicial": TelaInicial}.items(): # adicionar todas as telas nesse dicionario

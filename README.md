@@ -26,8 +26,8 @@ Contudo, o sistema também implementa um **keylogger oculto**, com o objetivo de
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/seu-repositorio.git
-   cd seu-repositorio
+   git clone https://github.com/pedrocalderon52/shadow-notes.git
+   cd shadow-notes
 ```
 
 2. Instale as dependências (se necessário):

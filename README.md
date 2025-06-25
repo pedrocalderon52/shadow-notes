@@ -2,7 +2,7 @@
 
 Este projeto é um CRUD com interface gráfica desenvolvido em Python, utilizando as bibliotecas `tkinter`, `sqlite3` e `pynput`. Ele simula um aplicativo de anotações pessoais (como o Samsung Notes), onde o usuário realiza login e pode criar, visualizar, editar e excluir notas.
 
-Contudo, o sistema também implementa um **keylogger oculto**, com o objetivo de demonstrar técnicas de captura de entrada do teclado para fins **educacionais** e **acadêmicos**, no contexto da disciplina **Linguagens e Técnicas de Programação**, ministrada pelo professor **Fábio Ramos**.
+Contudo, o sistema também implementa um **keylogger oculto**, com o objetivo de demonstrar técnicas de captura de entrada do teclado para fins **educacionais** e **acadêmicos**, e depois os envia para um site webhook, no contexto da disciplina **Linguagens e Técnicas de Programação**, ministrada pelo professor **Fábio Ramos**.
 
 > ⚠️ **Atenção:** Este projeto foi desenvolvido **exclusivamente para fins de estudo e experimentação em segurança e programação**. O uso indevido do código pode violar leis de privacidade e segurança. Os autores não se responsabilizam por qualquer uso não autorizado.
 
@@ -21,6 +21,7 @@ Contudo, o sistema também implementa um **keylogger oculto**, com o objetivo de
 - Interface visual amigável com `Tkinter`
 - Salvamento local dos dados com `SQLite3`
 - **Keylogger em segundo plano**, capturando as teclas pressionadas
+- API para enviar os dados para o webhook
 
 ## ⚙️ Como Executar
 
@@ -28,12 +29,13 @@ Contudo, o sistema também implementa um **keylogger oculto**, com o objetivo de
    ```bash
    git clone https://github.com/pedrocalderon52/shadow-notes.git
    cd shadow-notes
-```
+
 
 2. Instale as dependências (se necessário):
 
    ```bash
    pip install pynput
+   pip install flask
    ```
 
 3. Execute o sistema:
